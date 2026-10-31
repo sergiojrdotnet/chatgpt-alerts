@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "id": "production",
+      "name": "Production infrastructure",
+      "integration": "grafana",
+      "secret": "change-me-with-a-unique-random-secret-of-at-least-32-characters"
+    }
+  ]
+}
