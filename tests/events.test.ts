@@ -116,3 +116,10 @@ test('Exhausted transient retries stop and a verified host refresh resumes retai
     status = 200; await s.events.subscribe(principal, subscription()); await s.events.deliver(() => true); assert.equal(s.store.subscription(sub.id)?.cursor, 1);
   } finally { s.close(); }
 });
+test('Retry delay starts after a slow delivery failure instead of an old worker timestamp', async () => {
+  const s = setup(async (_id, _credentials, value) => { const data = value as { challenge?: string }; return data.challenge ? { status: 200, body: JSON.stringify(data) } : { status: 503, body: '' }; });
+  try {
+    const sub = await s.events.subscribe(principal, subscription()); s.store.ingest([event(alert())]); const started = Date.now();
+    await s.events.deliver(() => true, started - 5000); assert.ok(s.store.subscription(sub.id)!.nextAttempt >= started + 1000);
+  } finally { s.close(); }
+});

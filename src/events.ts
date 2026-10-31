@@ -72,7 +72,7 @@ export class Events {
           if (status >= 200 && status < 300) { this.store.acknowledge(current.id, current.revision, item.seq); continue; }
           const attempts = current.attempts + 1, transient = [408, 429].includes(status) || status >= 500;
           const state = status === 410 ? 'gone' : transient && attempts < 8 ? 'active' : 'failed';
-          this.store.failure(current.id, current.revision, state, attempts, now + Math.min(300000, 1000 * 2 ** (attempts - 1)), `Callback HTTP ${status}`); break;
+          this.store.failure(current.id, current.revision, state, attempts, Math.max(now, Date.now()) + Math.min(300000, 1000 * 2 ** (attempts - 1)), `Callback HTTP ${status}`); break;
         }
       }
     } finally { this.working = false; }
